@@ -1,46 +1,174 @@
-ExIT: Exon-Intron Transformer
-ExIT is a high-efficiency genomic modeling framework designed to bring advanced sequence analysis to consumer-grade hardware. By leveraging codon-level tokenization and a multi-task Transformer architecture, it provides a robust alternative to high-parameter models that typically require expensive GPU clusters.
+# 🧬 ExIT: Exon–Intron Transformer
 
-🏗️ Detailed Architecture
-The model utilizes a hybrid Transformer structure, featuring a shared encoder that serves as a universal feature extractor for various genomic classification tasks.
+> A lightweight Transformer-based framework for genomic sequence analysis using codon-level representations.
 
-1. Input & Tokenization
-Codon-Level Processing: Unlike traditional k-mer approaches, ExIT tokenizes DNA sequences into biologically relevant 3-base triplets (codons).
+---
 
-Embeddings: Raw tokens are mapped to a high-dimensional vector space where semantic genomic relationships are captured.
+## 🌟 Overview
 
-Positional Encoding: Since Transformers lack inherent sequence order awareness, positional encodings are injected to maintain the relative and absolute location of codons within the gene structure.
+**ExIT (Exon–Intron Transformer)** is designed to model genomic sequences efficiently using **codon-level tokenization** and a **shared Transformer encoder**.
 
-2. The Shared Encoder
-Multi-Head Attention: This allows the model to simultaneously focus on different regulatory motifs—such as splice sites and start codons—across the sequence.
+Unlike large genomic foundation models that require GPUs, ExIT is built for:
 
-FFN (GELU): A Feed-Forward Network using Gaussian Error Linear Unit activation handles the non-linear transformations of the attended features.
+- ⚡ CPU-based training  
+- 🧠 biologically meaningful representation  
+- 🔀 multi-task genomic prediction  
 
-[CLS] Pooling: A dedicated classification token is pooled to represent the aggregate sequence context, which is then branched into independent task-specific heads.
+---
 
-3. Multi-Task Prediction Heads
-The architecture is designed to perform three distinct genomic tasks in a single forward pass:
+## 🚀 Key Highlights
 
-Task A (Exon/Intron): Classifies regions as coding exons or non-coding introns.
+- 🧬 Codon-based (3-mer) tokenization  
+- 🧠 Transformer encoder with self-attention  
+- 🔀 Multi-task learning (3 genomic tasks)  
+- ⚡ Runs on consumer hardware (~8GB RAM)  
+- 🌍 Cross-species generalization (Human → Chimpanzee)  
 
-Task B (CDS Identification): Specifically identifies the Coding DNA Sequence regions essential for protein synthesis.
+---
 
-Task C (Splice Site Prediction): A 3-class classification head that predicts donor sites, acceptor sites, or non-splice regions.
+## 🏗️ Model Architecture
+      DNA Sequence
+      ↓
+      Codon Tokenization (3-mer)
+      ↓
+      Embedding + Positional Encoding
+      ↓
+      Transformer Encoder (Self-Attention + FFN)
+      ↓
+      [CLS] Token Representation
+      ↓
+      Task-Specific Heads
 
-🛠️ Detailed Development Process
-1. Data Procurement & Engineering
-Human & Primate Datasets: Genomic sequences were sourced from Ensembl Release 109 and 111, covering both the human reference genome (GRCh38) and chimpanzee (Pan_tro_3.0) for cross-species validation.
+---
 
-Ground Truth Generation: Annotation files (GTF) were parsed to generate precise labels for Task A, B, and C, ensuring the model was trained on high-fidelity, curated biological data.
+<details>
+<summary><b>🔬 Detailed Architecture (Click to Expand)</b></summary>
 
-BioBERT Integration: A gene entity recognition pipeline was implemented by fine-tuning BioBERT on the JNLPBA dataset to assist in entity normalization and data cleaning before training the core Transformer.
+### Input Representation
+- DNA is split into **non-overlapping codons**
+- Vocabulary:
+  - 64 codons  
+  - Special tokens: `<PAD>`, `<UNK>`, `<MASK>`
 
-2. Optimization for Accessibility
-Hardware Constraints: The development was centered on a "CPU-first" philosophy, ensuring the model performs optimally on devices with as little as 8GB of RAM.
+### Positional Encoding
+- Sinusoidal encoding added to embeddings
+- Preserves sequence order
 
-Tokenization Refinement: By utilizing codon-level modeling instead of k-mer tokenization, the model maintains high accuracy while significantly reducing the computational footprint.
+### Transformer Encoder
+Each layer includes:
+- Multi-head self-attention  
+- Feed-forward network (GELU)  
+- Residual connections + layer normalization  
 
-Portable Utility: The final model is designed for deployment on portable sequencing devices, enabling real-time genomic analysis in field environments without needing high-performance computing (HPC) access.
+### [CLS] Token
+- Represents entire sequence
+- Used for downstream classification  
 
-3. Experimental Validation
-Performance Metrics: The model's success was validated using Matthews Correlation Coefficient (MCC), which provides a more realistic assessment of performance on unbalanced genomic data compared to standard accuracy.
+</details>
+
+---
+
+## 📊 Tasks
+
+| Task | Description | Output |
+|------|------------|--------|
+| **Task A** | Exon vs Intron | Binary |
+| **Task B** | CDS Identification | Binary |
+| **Task C** | Splice Site Detection | 3-class |
+
+---
+
+## 📂 Dataset
+
+### Source
+- Ensembl (Release 109 / 111)
+
+### Genomes Used
+- Human (GRCh38)  
+- Chimpanzee (Pan_tro_3.0)
+
+---
+
+<details>
+<summary><b>🧪 Data Processing Pipeline (Click to Expand)</b></summary>
+
+- Extracted exon/CDS regions from GTF  
+- Inferred introns from exon gaps  
+- Generated splice site windows  
+- Reverse-complemented negative strand sequences  
+- Resolved ambiguous nucleotides  
+- Filtered sequence length (50–5000 bp)  
+- Converted sequences to codon tokens  
+
+</details>
+
+---
+
+## 📈 Evaluation Metrics
+
+- **Matthews Correlation Coefficient (MCC)** (Primary)  
+- Accuracy  
+- Precision / Recall  
+- F1 Score  
+
+---
+📊 Outputs
+
+The model generates:
+
+📌 Predictions for each sequence
+📊 Evaluation metrics (MCC, accuracy, etc.)
+📉 Visualizations:
+Confusion matrix
+Prediction distribution
+
+🔬 Interpretability & Insights
+
+ExIT is designed to capture biologically meaningful patterns such as:
+
+Coding vs non-coding regions
+Splice junction signals
+Codon-level sequence structure
+
+Future extensions aim to include:
+
+Attention visualization
+Gene expression prediction
+Codon usage bias analysis
+
+🤝 Contributing
+
+We welcome contributions!
+
+Open issues for bugs/features
+Submit pull requests
+Suggest new datasets or tasks
+📜 License
+
+MIT License
+
+## 🧪 Experimental Highlights
+
+- ✔ Strong exon–intron classification performance  
+- ✔ Robust cross-species generalization  
+- ✔ Efficient CPU-based training  
+- ✔ No reliance on large pretrained genomic models  
+
+---
+
+## 🛠️ Installation
+
+```bash
+git clone https://github.com/yourusername/ExIT.git
+cd ExIT
+pip install -r requirements.txt
+```
+## Workflow
+# Step 1: Preprocess
+python preprocess.py --fasta genome.fa --gtf genes.gtf
+
+# Step 2: Train
+python train.py --task A
+
+# Step 3: Evaluate
+python evaluate.py --checkpoint best_model.pt
